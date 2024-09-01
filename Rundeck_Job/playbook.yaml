@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Atualizar pacotes
+    yum:
+      name: '*'
+      state: latest
+  - name: Instalar pacotes do Docker
+    yum:
+      name:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+      state: present
+  - name: Adicionar repositório do Docker
+    yum_repository:
+      name: docker-ce
+      baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+      enabled: true
+      gpgcheck: true
+      repo_gpgcheck: true
+  - name: Adicionar usuário ao grupo docker
+    user:
+      name: "{{ ansible_user }}"
+      groups: docker
+      append: true
+  - name: Habilitar e iniciar serviço Docker
+    service:
+      name: docker
+      state: started
+      enabled: true
